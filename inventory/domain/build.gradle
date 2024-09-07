@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+    id 'io.freefair.lombok' version '8.7.1'
+    id 'jacoco'
+}
+
+archivesBaseName = 'inventory-domain'
+
+dependencies {
+    api project(':shared:domain')
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$rootProject.junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$rootProject.junitVersion"
+    testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
+    testImplementation "org.mockito:mockito-junit-jupiter:$rootProject.mockitoVersion"
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}

@@ -1,0 +1,31 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: account
+  data:
+    redis:
+      timeout: 30000
+  liquibase:
+    change-log: classpath:/db/master.yaml
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+  rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+server:
+  servlet:
+    context-path: /account
+exchanges:
+  address: address.topic
+routing-keys:
+  address:
+    primary-saved: address.primary-saved
+keycloak:
+  realm: solidvessel
+  client-id: solidvessel-auth
+  username: solidvessel-admin

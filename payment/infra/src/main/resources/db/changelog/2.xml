@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="ahmsay" id="solidvessel-sql-2" context="sql">
+        <sql>
+            create sequence cart_seq start 1 increment 1;
+            create table cart
+            (
+                id                 bigint      not null default nextval('cart_seq'::regclass) primary key,
+                created_date       timestamp   not null default now(),
+                last_modified_date timestamp,
+                version            int         not null default 0,
+                customer_id        varchar(36) not null
+            );
+
+            create table cart_product
+            (
+                cart_id    bigint references cart,
+                product_id bigint         not null,
+                name       varchar(150)   not null,
+                price      numeric(10, 2) not null,
+                category   varchar(50)    not null,
+                quantity   int            not null
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

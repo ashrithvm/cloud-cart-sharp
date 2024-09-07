@@ -1,0 +1,34 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: inventory
+  data:
+    redis:
+      timeout: 30000
+  liquibase:
+    change-log: classpath:/db/master.yaml
+  rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+server:
+  servlet:
+    context-path: /inventory
+exchanges:
+  payment: payment.topic
+  product: product.topic
+queues:
+  payment:
+    saved: payment.saved
+routing-keys:
+  payment:
+    saved: payment.saved
+  product:
+    available: product.available
+    checked: product.checked
+keycloak:
+  realm: solidvessel
+  client-id: solidvessel-auth
+  username: solidvessel-admin

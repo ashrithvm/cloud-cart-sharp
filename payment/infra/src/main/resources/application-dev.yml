@@ -1,0 +1,30 @@
+server:
+  port: 8084
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payment
+    username: nihilus
+    password: nihilus
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  liquibase:
+    contexts: sql,data
+  rabbitmq:
+    host: localhost
+    port: 5672
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9876/realms/solidvessel/protocol/openid-connect/certs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+keycloak:
+  server-url: http://localhost:9876
+  client-secret: GJDCy4C7LSeFmggaRtZutSHZHBaTCavE
+  password: svadmin

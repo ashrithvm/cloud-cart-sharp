@@ -1,0 +1,41 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: payment
+  data:
+    redis:
+      timeout: 30000
+  liquibase:
+    change-log: classpath:/db/master.yaml
+  rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+server:
+  servlet:
+    context-path: /payment
+exchanges:
+  payment: payment.topic
+  product: product.topic
+  address: address.topic
+queues:
+  product:
+    available: product.available
+    checked: product.checked
+  address:
+    primary-saved: address.primary-saved
+routing-keys:
+  payment:
+    saved: payment.saved
+    approved: payment.approved
+  product:
+    available: product.available
+    checked: product.checked
+  address:
+    primary-saved: address.primary-saved
+keycloak:
+  realm: solidvessel
+  client-id: solidvessel-auth
+  username: solidvessel-admin

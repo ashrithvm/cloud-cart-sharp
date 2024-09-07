@@ -1,0 +1,85 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'com.google.cloud.tools.jib' version '3.4.3'
+    id 'io.freefair.lombok' version '8.7.1'
+    id 'jacoco'
+    id 'org.springframework.cloud.contract' version '4.1.4'
+}
+
+archivesBaseName = 'order-infra'
+
+sourceCompatibility = JavaVersion.VERSION_21
+
+dependencies {
+    implementation project(':shared:infra')
+    implementation project(':order:domain')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    implementation "org.postgresql:postgresql:$rootProject.postgresDriverVersion"
+    implementation "org.liquibase:liquibase-core:$rootProject.liquibaseVersion"
+    implementation "org.springframework.cloud:spring-cloud-starter-openfeign:$rootProject.feignVersion"
+    implementation "org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j:$rootProject.circuitBreakerVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$rootProject.junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$rootProject.junitVersion"
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation "org.springframework.cloud:spring-cloud-starter-contract-verifier:$rootProject.springCloudContractVersion"
+    testImplementation "org.springframework.cloud:spring-cloud-contract-stub-runner:$rootProject.springCloudContractVersion"
+    testImplementation files(
+            "${project.rootDir}/payment/infra/build/libs/infra-stubs.jar"
+    )
+}
+
+tasks.compileTestJava.dependsOn rootProject.tasks.findByPath('payment:infra:verifierStubsJar')
+tasks.copyContracts.dependsOn rootProject.tasks.findByPath('payment:infra:verifierStubsJar')
+
+jib {
+    from {
+        image = "public.ecr.aws/s9i7g5t1/solidvessel/java/eclipse-temurin:21.0.1_12-jre-jammy"
+        platforms {
+            platform {
+                os = "linux"
+                architecture = "amd64"
+            }
+            platform {
+                os = "linux"
+                architecture = "arm64"
+            }
+        }
+    }
+    to {
+        image = "public.ecr.aws/s9i7g5t1/solidvessel/order:latest"
+    }
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
+contracts {
+    contractsDslDir = file("src/test/resources/contracts")
+    packageWithBaseClasses = 'com.solidvessel.order.adapter.in'
+    baseClassMappings {
+        baseClassMapping("order", "com.solidvessel.order.adapter.in.order.rest.OrderProducerContractTest")
+    }
+}
+
+contractTest {
+    useJUnitPlatform()
+}
