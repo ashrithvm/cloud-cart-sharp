@@ -1,0 +1,9 @@
+environment: prod
+db:
+  hostname: account.db.solidvessel.com
+  url: jdbc:postgresql://account.db.solidvessel.com:5432/account
+spring:
+  webExposure: health
+  liquibase:
+    contexts: sql
+replicas: 1

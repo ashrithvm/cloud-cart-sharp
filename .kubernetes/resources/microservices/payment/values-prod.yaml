@@ -1,0 +1,9 @@
+environment: prod
+db:
+  hostname: payment.db.solidvessel.com
+  url: jdbc:postgresql://payment.db.solidvessel.com:5432/payment
+spring:
+  webExposure: health
+  liquibase:
+    contexts: sql
+replicas: 2

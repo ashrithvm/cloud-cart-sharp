@@ -1,0 +1,24 @@
+# Actually this is more like a git include file, all the contents below are added to git.
+*
+!*/
+
+# source code
+!**/src/**
+
+# gradle files
+!**/**/settings.gradle
+!**/**/build.gradle
+!gradlew
+!gradlew.bat
+!gradle/**
+
+# devops
+!.docker/**
+!.kubernetes/**
+!.ci/**
+
+# other files
+!.gitignore
+!**/*.md
+!.postman/**
+!codecov.yml

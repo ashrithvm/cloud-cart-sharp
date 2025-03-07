@@ -1,0 +1,28 @@
+{{ if eq .Values.environment "prod" }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: alb-controller
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://aws.github.io/eks-charts
+    chart: aws-load-balancer-controller
+    targetRevision: 1.8.2
+    helm:
+      releaseName: aws-load-balancer-controller
+      values: |
+        clusterName: solidvessel
+        serviceAccount:
+          create: false
+          name: aws-load-balancer-controller
+        image:
+          repository: 602401143452.dkr.ecr.eu-central-1.amazonaws.com/amazon/aws-load-balancer-controller
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+{{ end }}

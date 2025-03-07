@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Solidvessel Databases
+Resources:
+  AccountDB:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceIdentifier: solidvessel-account-db
+      DBInstanceClass: db.t4g.medium
+      DBSubnetGroupName: !Ref K8SSubnetGroup
+      AllocatedStorage: 20
+      Engine: postgres
+      EngineVersion: "16.4"
+      DBSnapshotIdentifier: solidvessel-databases-snapshot-accountdb-kmdeh5lrckwz
+      VPCSecurityGroups:
+      - Ref: CommonDBSecurityGroup
+      DeletionPolicy: Delete
+  InventoryDB:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceIdentifier: solidvessel-inventory-db
+      DBInstanceClass: db.t4g.medium
+      DBSubnetGroupName: !Ref K8SSubnetGroup
+      AllocatedStorage: 20
+      Engine: postgres
+      EngineVersion: "16.4"
+      DBSnapshotIdentifier: solidvessel-databases-snapshot-inventorydb-opf2kfvocqrf
+      VPCSecurityGroups:
+      - Ref: CommonDBSecurityGroup
+      DeletionPolicy: Delete
+  OrderDB:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceIdentifier: solidvessel-order-db
+      DBInstanceClass: db.t4g.medium
+      DBSubnetGroupName: !Ref K8SSubnetGroup
+      AllocatedStorage: 20
+      Engine: postgres
+      EngineVersion: "16.4"
+      DBSnapshotIdentifier: solidvessel-databases-snapshot-orderdb-usgtmpuqn5fw
+      VPCSecurityGroups:
+      - Ref: CommonDBSecurityGroup
+      DeletionPolicy: Delete
+  PaymentDB:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceIdentifier: solidvessel-payment-db
+      DBInstanceClass: db.t4g.medium
+      DBSubnetGroupName: !Ref K8SSubnetGroup
+      AllocatedStorage: 20
+      Engine: postgres
+      EngineVersion: "16.4"
+      DBSnapshotIdentifier: solidvessel-databases-snapshot-paymentdb-umpczzspq9f7
+      VPCSecurityGroups:
+      - Ref: CommonDBSecurityGroup
+      DeletionPolicy: Delete
+  KeycloakDB:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceIdentifier: solidvessel-keycloak-db
+      DBInstanceClass: db.t4g.medium
+      DBSubnetGroupName: !Ref K8SSubnetGroup
+      AllocatedStorage: 20
+      Engine: postgres
+      EngineVersion: "16.4"
+      DBSnapshotIdentifier: solidvessel-databases-snapshot-keycloakdb-xf2sjwcuamhd
+      VPCSecurityGroups:
+      - Ref: CommonDBSecurityGroup
+      DeletionPolicy: Delete
+  K8SSubnetGroup:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupDescription: Databases should be in the same VPC with the K8S cluster
+      SubnetIds:
+        !Split [ ",", !ImportValue eksctl-solidvessel-cluster::SubnetsPrivate ]
+  CommonDBSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Allow incoming DB connections from EC2
+      GroupName: solidvessel-db-sg
+      SecurityGroupIngress:
+      - FromPort: 5432
+        ToPort: 5432
+        IpProtocol: tcp
+        SourceSecurityGroupId: !ImportValue eksctl-solidvessel-cluster::ClusterSecurityGroupId
+      VpcId: !ImportValue eksctl-solidvessel-cluster::VPC
+  CommonEC2SecurityGroupDBEgressRule:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      Description: Allow outgoing DB connections to RDS
+      GroupId: !ImportValue eksctl-solidvessel-cluster::ClusterSecurityGroupId
+      FromPort: 5432
+      ToPort: 5432
+      IpProtocol: tcp
+      DestinationSecurityGroupId: !Ref CommonDBSecurityGroup
+  CommonEC2SecurityGroupDefaultEgressRule:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      Description: Allow all outbound traffic (default rule)
+      GroupId: !ImportValue eksctl-solidvessel-cluster::ClusterSecurityGroupId
+      FromPort: 0
+      ToPort: 65535
+      IpProtocol: -1
+      CidrIp: 0.0.0.0/0
+  DBHostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: db.solidvessel.com.
+      VPCs:
+      - VPCId: !ImportValue eksctl-solidvessel-cluster::VPC
+        VPCRegion: !Ref AWS::Region
+  AccountDBDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: account.db.solidvessel.com.
+      Type: CNAME
+      TTL: 300
+      HostedZoneId: !Ref DBHostedZone
+      ResourceRecords:
+      - solidvessel-account-db.cxkkzh5ye6cc.eu-central-1.rds.amazonaws.com
+  InventoryDBDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: inventory.db.solidvessel.com.
+      Type: CNAME
+      TTL: 300
+      HostedZoneId: !Ref DBHostedZone
+      ResourceRecords:
+      - solidvessel-inventory-db.cxkkzh5ye6cc.eu-central-1.rds.amazonaws.com
+  OrderDBDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: order.db.solidvessel.com.
+      Type: CNAME
+      TTL: 300
+      HostedZoneId: !Ref DBHostedZone
+      ResourceRecords:
+      - solidvessel-order-db.cxkkzh5ye6cc.eu-central-1.rds.amazonaws.com
+  PaymentDBDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: payment.db.solidvessel.com.
+      Type: CNAME
+      TTL: 300
+      HostedZoneId: !Ref DBHostedZone
+      ResourceRecords:
+      - solidvessel-payment-db.cxkkzh5ye6cc.eu-central-1.rds.amazonaws.com
+  KeycloakDBDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: keycloak.db.solidvessel.com.
+      Type: CNAME
+      TTL: 300
+      HostedZoneId: !Ref DBHostedZone
+      ResourceRecords:
+      - solidvessel-keycloak-db.cxkkzh5ye6cc.eu-central-1.rds.amazonaws.com

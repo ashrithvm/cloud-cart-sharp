@@ -1,0 +1,7 @@
+version: 0.2
+env:
+  shell: bash
+phases:
+  build:
+    commands:
+    - aws cloudformation deploy --template-file .ci/production/databases.yaml --stack-name solidvessel-databases

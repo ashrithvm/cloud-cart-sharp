@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  namespace: solidvessel
+  labels:
+    app: order
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: busybox
+        command: [ 'sh', '-c', "until nslookup {{ .Values.db.hostname }}; do echo waiting for database; sleep 1; done" ]
+      - name: wait-for-keycloak
+        image: busybox
+        command: [ 'sh', '-c', "until nslookup keycloak.solidvessel.svc.cluster.local; do echo waiting for keycloak; sleep 1; done" ]
+      containers:
+      - name: order-app
+        image: public.ecr.aws/s9i7g5t1/solidvessel/order:latest
+        imagePullPolicy: Always
+        args:
+        - "--spring.profiles.active={{ .Values.environment }}"
+        - "--spring.datasource.url={{ .Values.db.url }}"
+        - "--spring.datasource.username=nihilus"
+        - "--spring.datasource.password=${DB_PASSWORD}"
+        - "--spring.liquibase.contexts={{ .Values.spring.liquibase.contexts }}"
+        - "--spring.data.redis.host=redis-master"
+        - "--spring.data.redis.port=6379"
+        - "--spring.data.redis.password=${REDIS_PASSWORD}"
+        - "--spring.rabbitmq.host=rabbitmq"
+        - "--spring.rabbitmq.port=5672"
+        - "--spring.rabbitmq.password=${RABBITMQ_PASSWORD}"
+        - "--spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://keycloak:8080/realms/solidvessel/protocol/openid-connect/certs"
+        - "--payment.url=http://payment:8080/payment"
+        - "--management.endpoints.web.exposure.include={{ .Values.spring.webExposure }}"
+        - "--keycloak.server-url=http://keycloak:8080"
+        - "--keycloak.client-secret=${KEYCLOAK_CLIENT_SECRET}"
+        - "--keycloak.password=${KEYCLOAK_PASSWORD}"
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: order-secret

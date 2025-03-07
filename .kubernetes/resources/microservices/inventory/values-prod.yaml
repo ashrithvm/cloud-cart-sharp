@@ -1,0 +1,9 @@
+environment: prod
+db:
+  hostname: inventory.db.solidvessel.com
+  url: jdbc:postgresql://inventory.db.solidvessel.com:5432/inventory
+spring:
+  webExposure: health
+  liquibase:
+    contexts: sql
+replicas: 3
