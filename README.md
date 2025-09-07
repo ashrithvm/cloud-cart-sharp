@@ -43,8 +43,7 @@ Please note that I'm not keeping the production environment up
 7/24, that would be very costly.</b>
 Let's explain each component shown in the diagram one by one:
 
-- **Route 53**: This service is responsible for managing DNS in AWS. When the user types a url, such
-  as www.solidvessel.com , it is resolved to the url of the ALB.
+- **Route 53**: This service is responsible for managing DNS in AWS. When the user types a url, it is resolved to the url of the ALB.
   This process is done by Route 53.
 - **ALB**: The ingress resource defined for the K8S cluster is converted to an ALB (Application Load Balancer). AWS
   reads the routing rules, services and the SSL configuration we defined in the ingress file and applies all of them in
