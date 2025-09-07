@@ -1,6 +1,5 @@
-# Solidvessel
+# Cloud Cart
 
-[![codecov](https://codecov.io/gh/ahmsay/Solidvessel/graph/badge.svg?token=KVJ8AABE5Z)](https://codecov.io/gh/ahmsay/Solidvessel)
 ![](https://codebuild.eu-central-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiUFlTcHRnNXlIN0tVMm5veE9XU1VZblp2SEwzQ3Q3R3ZmQ3N2enI3cWtENEVZbmtleVFBOFJ2OWpVNy9NSEVrMjhHU0lqODY0U0NiNWh3L0M0VUREMG5NPSIsIml2UGFyYW1ldGVyU3BlYyI6Imw3SHZtNkErV0NPckpWUkQiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 
 This is a shopping application designed with microservices architecture. My main goal is to learn about
@@ -10,7 +9,7 @@ transactions of a shopping application.
 
 ## Architecture
 ### Development
-![development](./images/image.png)
+![development](./image.png)
 
 In development mode, microservices are running as separate processes on your computer. The API Gateway, database,
 RabbitMQ, Redis and Keycloak run
@@ -21,7 +20,7 @@ environment.
 
 ### Test
 
-![test](./images/image2.png)
+![test](./image2.png)
 
 In test mode, the whole application lives in a Kubernetes cluster which runs on your computer. Microservices, API
 Gateway, databases, Redis, RabbitMQ and Keycloak now
@@ -36,7 +35,7 @@ service can have 3 replicas. Distributing the traffic across the replicas is als
 
 ### Production
 
-![prod](./images/image3.png)
+![prod](./image3.png)
 
 Production environment is very similar to the test environment. However, the cluster is on remote servers now, just like
 a real world
